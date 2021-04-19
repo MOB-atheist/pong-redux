@@ -1,5 +1,5 @@
 name: CI
-on: [merge]
+on: [push]
 jobs:
   build:
     name: Build
