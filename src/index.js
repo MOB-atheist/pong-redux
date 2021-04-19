@@ -1,15 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './App';
-import { store } from './app/store';
+import { store, persist } from './app/store';
 import { Provider } from 'react-redux';
 import * as serviceWorker from './serviceWorker';
+import 'bootstrap/dist/css/bootstrap.min.css'
+import persistReducer from 'redux-persist/es/persistReducer';
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <persistReducer persist={persist}>
+       <App />
+      </persistReducer>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')
