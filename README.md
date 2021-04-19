@@ -11,9 +11,7 @@
 
 > Pong game made using react with redux to save game state, for learning purposes
 
-### 🏠 [Homepage](https://mob-atheist.github.io/pong-redux/)
-
-### ✨ [Demo](https://mob-atheist.github.io/pong-redux/)
+### ✨ [Demo](https://pong-redux.coderahead.me/)
 
 ## Prerequisites
 
