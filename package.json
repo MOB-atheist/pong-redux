@@ -1,7 +1,22 @@
 {
   "name": "pong-redux",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "description": "Pong game made using react with redux to save game state, for learning purposes",
+  "author": "MOB-atheist",
+  "homepage": "https://mob-atheist.github.io/pong-redux/",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:MOB-atheist/pong-redux.git"
+  },
+  "bug": {
+    "url": "https://github.com/MOB-atheist/pong-redux/issues"
+  },
+  "engines": {
+    "yarn": ">=1.22.10",
+    "npm": ">=6.14.4",
+    "node": ">=10.19.0"
+  },
   "dependencies": {
     "@reduxjs/toolkit": "^1.5.1",
     "@testing-library/jest-dom": "^4.2.4",
