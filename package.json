@@ -1,10 +1,10 @@
 {
-  "name": "pong-redux",
+  "name": "",
   "version": "0.1.0",
   "private": false,
   "description": "Pong game made using react with redux to save game state, for learning purposes",
   "author": "MOB-atheist",
-  "homepage": "https://mob-atheist.github.io/pong-redux/",
+  "homepage": "https://pong-redux.coderahead.me/",
   "repository": {
     "type": "git",
     "url": "git@github.com:MOB-atheist/pong-redux.git"
