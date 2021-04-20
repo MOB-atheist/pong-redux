@@ -12,9 +12,6 @@ export default function Routes(props) {
                 <Route exact path="/">
                     <Home />
                 </Route>
-                <Route exact path="/user">
-                    <User />
-                </Route>
                 <Route path="/">
                     <NotFound />
                 </Route>

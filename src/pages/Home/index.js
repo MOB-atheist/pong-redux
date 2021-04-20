@@ -1,23 +1,26 @@
+import { Button, Grid, Link, makeStyles, Paper } from '@material-ui/core'
 import React from 'react'
-import {
-    Container,
-    Row,
-    Col
-} from'react-bootstrap'
+
+import Game from '../../modules/game'
+
+const useStyles = makeStyles((theme) => ({
+    paper: {
+        padding: '1rem',
+        margin: "0 1rem",
+        borderColor: theme.palette.text.primary,
+        textAlign: "center",
+    },
+}))
 
 export default function Home() {
+    const classes = useStyles()
     return (
-        <Container fluid>
-            <Row md={6}>
-                <Col md={4}>4</Col>
-                <Col md={4}>4</Col>
-                <Col md={4}>4</Col>
-            </Row>
-            <Row md={6}>
-                <Col md={4}>4</Col>
-                <Col md={4}>4</Col>
-                <Col md={4}>4</Col>
-            </Row>
-        </Container>
+        <>
+            <Paper variant="outlined" className={classes.paper}>
+                <h3>Welcome to my mini project, Pong Redux</h3> ill use this project to put my react-redux skills to the test, if you see any bug please report it on <Link href="https://github.com/MOB-atheist/pong-redux/pulls">Issues</Link>
+            </Paper>
+
+            <Game />
+        </>
     )
 }

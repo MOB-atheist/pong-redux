@@ -15,9 +15,9 @@
 
 ## Prerequisites
 
-- yarn >=1.22.10
-- npm >=6.14.4
-- node >=10.19.0
+-   yarn >=1.22.10
+-   npm >=6.14.4
+-   node >=10.19.0
 
 ## Install
 
@@ -41,8 +41,8 @@ yarn run test
 
 👤 **MOB-atheist**
 
-- Website: coderahead.me
-- Github: [@MOB-atheist](https://github.com/MOB-atheist)
+-   Website: coderahead.me
+-   Github: [@MOB-atheist](https://github.com/MOB-atheist)
 
 ## Show your support
 
