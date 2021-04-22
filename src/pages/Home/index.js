@@ -20,7 +20,7 @@ export default function Home() {
                 <h3>Welcome to my mini project, Pong Redux</h3> ill use this project to put my react-redux skills to the test, if you see any bug please report it on <Link href="https://github.com/MOB-atheist/pong-redux/pulls">Issues</Link>
             </Paper>
 
-            <Game />
+            <Game height={256} width={512} padSize={30} fps={60} BallHeight={15} BallWidth={15}/>
         </>
     )
 }

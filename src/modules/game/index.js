@@ -1,10 +1,7 @@
 import { Box, Button, Grid, Paper, withStyles } from '@material-ui/core'
+import { PlayArrowOutlined, RotateLeftOutlined } from '@material-ui/icons'
 import React, { Component } from 'react'
-import { HotKeys } from 'react-hotkeys'
-// import { DefaultTimer, GameEngine } from "react-game-engine";
-
-import { GameBox } from "./renderers";
-import { MoveBox } from "./systems"
+import ReactHotkeys from 'react-hot-keys'
 
 const useStyles = (theme) => ({
     game: {
@@ -13,35 +10,30 @@ const useStyles = (theme) => ({
         borderColor: theme.palette.text.primary
     },
     gameContainer: {
-        height: "256px",
-        width: "512px",
         padding: "5px",
         borderColor: theme.palette.text.primary,
         position: "relative"
     },
-    // gameContainer: {
-    //     height: "256px",
-    //     width: "512px",
-    //     padding: "5px",
-    //     borderColor: theme.palette.text.primary,
-    // },
     startButton: {
         borderColor: theme.palette.text.primary
     },
     PadLeft: {
         backgroundColor: theme.palette.text.primary,
-        height: "30px",
         width: "5px",
         position: "absolute",
         left: "5px"
     },
     PadRight: {
         backgroundColor: theme.palette.text.primary,
-        height: "30px",
         width: "5px",
         position: "absolute",
         right: "5px"
     },
+    Ball: {
+        position: "absolute",
+        backgroundColor: theme.palette.text.primary,
+        'border-radius': "50%"
+    }
 })
 
 class Game extends Component {
@@ -49,109 +41,254 @@ class Game extends Component {
         super()
         this.state = {
             started: false,
+            Lost: false,
             Loop: null,
             AiPosition: {
-                direction: "UP",
-                position: 50
+                direction: "up",
+                position: props.height/2
+            },
+            PlayerPosition: {
+                direction: "up",
+                position: props.height/2
+            },
+            Ball: {
+                height: props.BallHeight,
+                width: props.BallWidth,
+                x: props.height/2,
+                y: props.width/2,
+                xSpeed: 1,
+                ySpeed: 1
             }
         }
     }
 
+    Reset = (Lost = false) => {
+        clearInterval(this.state.Loop)
+        console.log(this.state)
+        this.setState({
+            started: false,
+            Lost: Lost,
+            Loop: null,
+            AiPosition: {
+                direction: "up",
+                position: this.props.height/2
+            },
+            PlayerPosition: {
+                direction: "up",
+                position: this.props.height/2
+            },
+            Ball: {
+                height: this.props.BallHeight,
+                width: this.props.BallWidth,
+                x: this.props.height/2,
+                y: this.props.width/2,
+                xSpeed: 1,
+                ySpeed: 1
+            }
+        })
+        console.log(this.state)
+    }
+
     Update = () => {
         this.MoveAi()
+        this.MovePlayer()
+        this.MoveBall()
+    }
+
+    Actions = {
+        down: ({ direction, position }) => {
+            if(position === this.props.height - this.props.padSize){
+                position--;
+                direction="up"
+            }else{
+                position++;
+            }
+            return { direction, position }
+        },
+        up: ({ direction, position }) => {
+            if(position === 0){
+                position++;
+                direction="down"
+            }else{
+                position--;
+            }
+            return { direction, position }
+        },
+        playerDirection: (v) => {
+            var { PlayerPosition } = this.state
+            PlayerPosition.direction = v
+            this.setState({ PlayerPosition: PlayerPosition })
+        },
+        AiDirection: (v) => {
+            var { AiPosition } = this.state
+            AiPosition.direction = (v === "w"?"up":"down")
+            this.setState({ AiPosition: AiPosition })
+        },
+        escape: () => {
+            // stop game
+            this.setState({
+                started: false
+            })
+            clearInterval(this.state.Loop)
+        },
+        enter: () => {
+            // Start game
+            if(!this.state.started){
+                this.setState({
+                    started: true,
+                    Loop: setInterval(() => {
+                        this.Update()
+                    }, 1000/this.props.fps)
+                })
+            }
+        }
+    }
+
+    ProcessBallMovement = () => {
+        var { Ball, PlayerPosition, AiPosition } = this.state
+        const { padSize, width } = this.props // Tamanho da paleta
+
+        // Colisão com paleta do Player ou Bot
+        if(
+            (// PLayer direita
+                Ball.x >= PlayerPosition.position // Posição bola for maior que a da paleta
+                && Ball.x <= (PlayerPosition.position + padSize) // Está na linha horizontal junto a paleta ?
+                && Ball.y >= width - Ball.width
+            ) || (// PLayer esquerda
+                Ball.x >= AiPosition.position // Posição bola for maior que a da paleta
+                && Ball.x <= (AiPosition.position + padSize) // Está na linha horizontal junto a paleta ?
+                && Ball.y <= 0 + Ball.width
+            )
+        ){
+            Ball.ySpeed = -(Ball.ySpeed)
+            return Ball // Se houver conlisões com player ou ia
+        }
+
+        // Se posição y passar de ( width tela - width bola - 10px (padding + width da paleta))
+        // Jogardor perdeu o jogo
+        if(Ball.y > width - Ball.width ){
+            this.Reset(true)
+            return false
+        }
+
+        // Se bola posição < tamanho tela - tamanho da bola && 
+        // Posição > 0
+        // Ou seja se a bola estiver dentro do range da tela retorno é true,
+        // usando ! nos informamos que o proximo movimento é invalido e a velocidade é invertida
+        if(!((Ball.x < this.props.height - Ball.height) && Ball.x > 0)){
+            Ball.xSpeed = -(Ball.xSpeed)
+        }
+
+        // Se bola posição < tamanho tela - tamanho da bola && 
+        // Posição > 0
+        // Ou seja se a bola estiver dentro do range da tela retorno é true,
+        // usando ! nos informamos que o proximo movimento é invalido e a velocidade é invertida
+        // if(!((Ball.y < this.props.width - Ball.width) && Ball.y > 0)){
+        //     Ball.ySpeed = -(Ball.ySpeed)
+        // }
+        return Ball // Se não houver colisões com player somente colisões com a 
+        // parede serão processadas ate aqui
+    }
+
+    MoveBall = () => {
+        var Ball = this.ProcessBallMovement()
+        if(Ball === false) return
+        Ball.x = Ball.x + Ball.xSpeed // Passos dados na vertical
+        Ball.y = Ball.y + Ball.ySpeed // Passos dados na horizontal
+        this.setState({ Ball: Ball })
+    }
+
+    Ball = () => {
+        return (
+            <div className={this.props.classes.Ball} style={{
+                height: `${this.state.Ball.height}px`,
+                width: `${this.state.Ball.width}px`,
+                top: `${this.state.Ball.x}px`,
+                left: `${this.state.Ball.y - this.state.Ball.width/2}px`,
+            }}></div>
+        )
     }
 
     MoveAi = () => {
-        const { AiPosition } = this.state
-        console.log(AiPosition)
-        if( AiPosition.position === 100 && AiPosition.direction === "DOWN"){
-            AiPosition.direction = "UP"
-            AiPosition.position--
-        }
-        if(AiPosition.direction === "UP"){
-            AiPosition.position--
-        }
-        if( AiPosition.position === 0 && AiPosition.direction === "UP"){
-            AiPosition.direction = "DOWN"
-            AiPosition.position++
-        }
-        if(AiPosition.direction === "DOWN"){
-            AiPosition.position++
-        }
-        this.setState({
-            AiPosition: AiPosition
-        })
+        var { AiPosition } = this.state
+        AiPosition = this.Actions[AiPosition.direction](AiPosition)
+        this.setState({AiPosition: AiPosition})
     }
 
-    Stop = () => {
-        clearInterval(this.state.Loop)
-    }
-
-    Start = () => {
-        this.setState({
-            started: true,
-            Loop: setInterval(() => {
-                this.Update()
-            }, 60)
-        })
+    MovePlayer = () => {
+        var { PlayerPosition } = this.state
+        PlayerPosition = this.Actions[PlayerPosition.direction](PlayerPosition)
+        this.setState({PlayerPosition: PlayerPosition})
     }
 
     render() {
-        const { classes } = this.props
-        const { started, AiPosition } = this.state
-        const { Start, Stop } = this
+        const { classes, padSize } = this.props
+        const { started, AiPosition, Lost } = this.state
+        var { PlayerPosition } = this.state
+        const { Actions, Ball } = this
         return (
-            <Paper variant="outlined" className={classes.game}>
-                <HotKeys
-                    key="ESC"
-                    onKeyDown={Stop}
+            <>
+                <ReactHotkeys
+                    keyName="escape, enter, down, up, w, s"
+                    onKeyDown={(v) => {
+                        if(v === "up" || v === "down"){
+                            Actions["playerDirection"](v)
+                        }else if( v === "w" || v === "s"){
+                            Actions["AiDirection"](v)
+                        }else{
+                            Actions[v]()
+                        }
+                    }}
                 >
-                    <Grid
-                        container
-                        direction="row"
-                        alignItems="center"
-                        justify="center"
-                    >
-                        <Box border={1}>
-                            {/* { started && 
-                                <GameEngine
+                    <Paper variant="outlined" className={classes.game} autoFocus>
+                        <Grid
+                            container
+                            direction="row"
+                            alignItems="center"
+                            justify="center"
+                        >
+                            <Box border={1}>
+                                <Grid
+                                    container
+                                    item
                                     className={classes.gameContainer}
-                                    running={started}
-                                    timer={new DefaultTimer(10000)}
-                                    renderer={klog}
-                                    systems={[MoveBox]}
-                                    entities={{
-                                        box1: { x: 200,  y: 200, renderer: <GameBox />}
+                                    style={{
+                                        width: `${this.props.width}px`,
+                                        height: `${this.props.height}px`
                                     }}
-                                />
-                            }
-                            { !started && 
-                                <Grid item xs={12}>
-                                    <Button onClick={Start} className={classes.startButton} variant="outlined" fullWidth >START</Button> 
+                                    alignItems="center"
+                                    justify="space-between"
+                                >
+                                    { started && 
+                                    <>
+                                        <Grid item className={classes.PadLeft} style={{top: `${AiPosition.position}px`, height: `${this.props.padSize}px`}}></Grid>
+                                        <Grid item>
+                                            <Ball/>
+                                        </Grid>
+                                        <Grid item className={classes.PadRight} style={{top: `${PlayerPosition.position}px`, height: `${this.props.padSize}px` }}></Grid>
+                                    </>}
+                                    { (!started && !Lost) && (<>
+                                        <Grid item xs={1}></Grid>
+                                        <Grid item xs={10}>
+                                            <Button startIcon={ <PlayArrowOutlined /> } onClick={Actions.enter} className={classes.startButton} variant="outlined" fullWidth >START</Button> 
+                                        </Grid>
+                                        <Grid item xs={1}></Grid>
+                                    </>)}
+                                    { (!started && Lost) &&
+                                        <>
+                                            <Grid item xs={1}></Grid>
+                                            <Grid item xs={10}>
+                                                <Button startIcon={ <RotateLeftOutlined /> } onClick={Actions.Restart} className={classes.resetButton} variant="outlined" fullWidth >RESTART</Button> 
+                                            </Grid>
+                                            <Grid item xs={1}></Grid>
+                                        </>
+                                    }
                                 </Grid>
-                            } */}
-                            <Grid
-                                container
-                                item
-                                className={classes.gameContainer}
-                                alignItems="center"
-                                justify="space-between"
-                            >
-                                { started && 
-                                <>
-                                    <Grid item className={classes.PadLeft} style={{top: `calc(100% - 15px)`}}></Grid>
-                                    <Grid item className={classes.PadRight}></Grid>
-                                </>}
-                                { !started && 
-                                    <Grid item xs={12}>
-                                        <Button onClick={Start} className={classes.startButton} variant="outlined" fullWidth >START</Button> 
-                                    </Grid>
-                                }
-                            </Grid>
-                        </Box>
-                    </Grid>
-                </HotKeys>
-            </Paper>
+                            </Box>
+                        </Grid>
+                    </Paper>
+                </ReactHotkeys>
+            </>
         )
     }
 }

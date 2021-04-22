@@ -6171,6 +6171,11 @@ hosted-git-info@^2.1.4:
   resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.8.tgz#7539bd4bc1e0e0a895815a2e0262420b12858488"
   integrity sha512-f/wzC2QaWBs7t9IYqB4T3sR1xviIViXJRJTWBlx2Gf3g0Xi5vI7Yy4koXQ1c9OYDGHN9sBy1DQ2AB8fqZBWhUg==
 
+hotkeys-js@^3.8.1:
+  version "3.8.3"
+  resolved "https://registry.yarnpkg.com/hotkeys-js/-/hotkeys-js-3.8.3.tgz#0331c2cde770e62d51d5d023133f7c4395f59008"
+  integrity sha512-rUmoryG4lEAtkjF5tcYaihrVoE86Fdw1BLqO/UiBWOOF56h32a6ax8oV4urBlinVtNNtArLlBq8igGfZf2tQnw==
+
 hpack.js@^2.1.6:
   version "2.1.6"
   resolved "https://registry.yarnpkg.com/hpack.js/-/hpack.js-2.1.6.tgz#87774c0949e513f42e84575b3c45681fade2a0b2"
@@ -9836,7 +9841,7 @@ prop-types-extra@^1.1.0:
     react-is "^16.3.2"
     warning "^4.0.0"
 
-prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -10090,12 +10095,13 @@ react-game-engine@^1.0.0:
   resolved "https://registry.yarnpkg.com/react-game-engine/-/react-game-engine-1.0.0.tgz#944cdbe860502ffff4958c7ec8b81986565791cd"
   integrity sha512-we1V6z3lsvcTD9n/4/livF+3r4fDAWvi0uiRCboA74welANxzhD6J/F1V2wGAqf/mCQTBgJR2c/clMBKVS4SVg==
 
-react-hotkeys@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/react-hotkeys/-/react-hotkeys-2.0.0.tgz#a7719c7340cbba888b0e9184f806a9ec0ac2c53f"
-  integrity sha512-3n3OU8vLX/pfcJrR3xJ1zlww6KS1kEJt0Whxc4FiGV+MJrQ1mYSYI3qS/11d2MJDFm8IhOXMTFQirfu6AVOF6Q==
+react-hot-keys@^2.6.2:
+  version "2.6.2"
+  resolved "https://registry.yarnpkg.com/react-hot-keys/-/react-hot-keys-2.6.2.tgz#32fba45d9bf854a12f75994f421cb7047e5a3338"
+  integrity sha512-BMyIrQqQg5H7VWPW0OlJe+MTVZ68t37kkGF2ELvQqgCBPEMbvi6jhb7V4gKYkUV/BetqNnLTrUC4LUMW6myr1Q==
   dependencies:
-    prop-types "^15.6.1"
+    hotkeys-js "^3.8.1"
+    prop-types "^15.7.2"
 
 react-is@^16.12.0, react-is@^16.13.1, react-is@^16.3.2, react-is@^16.6.0, react-is@^16.7.0, react-is@^16.8.1, react-is@^16.8.4:
   version "16.13.1"
