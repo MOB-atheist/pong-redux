@@ -24,6 +24,15 @@ const theme = createMuiTheme({
                 },
                 a: {
                     color: '#fff !important'
+                },
+                button: {
+                    borderColor: '#00ff00 !important'
+                },
+                fieldset: {
+                    borderColor: '#00ff00 !important'
+                },
+                label: {
+                    color: '#00ff00 !important'
                 }
             },
         },

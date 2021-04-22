@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Paper, withStyles } from '@material-ui/core'
+import { Box, Button, Grid, Paper, Typography, withStyles } from '@material-ui/core'
 import { PlayArrowOutlined, RotateLeftOutlined } from '@material-ui/icons'
 import React, { Component } from 'react'
 import ReactHotkeys from 'react-hot-keys'
@@ -13,9 +13,6 @@ const useStyles = (theme) => ({
         padding: "5px",
         borderColor: theme.palette.text.primary,
         position: "relative"
-    },
-    startButton: {
-        borderColor: theme.palette.text.primary
     },
     PadLeft: {
         backgroundColor: theme.palette.text.primary,
@@ -150,18 +147,18 @@ class Game extends Component {
             if(
                 Ball.xSpeed % 2 === 0 // is  Even?
             ){// Going down, so  i'll add speed
-                Ball.xSpeed -= Ball.xSpeed/2
+                Ball.xSpeed -= Ball.xSpeed/this.props.friction
             }else{//  Odd, Going up, so  i'll decrease speed
-                Ball.xSpeed += Ball.xSpeed/2
+                Ball.xSpeed += Ball.xSpeed/this.props.friction
             }
         }
         if(Entity.direction === "down"){
             if(
                 Ball.xSpeed % 2 === 0 //Se numero é par | Even
             ){// pallet Going down and ball going up, so  i'll decrease speed
-                Ball.xSpeed -= Ball.xSpeed/2
+                Ball.xSpeed -= Ball.xSpeed/this.props.friction
             }else{//  Odd, Going up, so  i'll decrease speed
-                Ball.xSpeed += Ball.xSpeed/2
+                Ball.xSpeed += Ball.xSpeed/this.props.friction
             }
         }
         return Ball
@@ -267,54 +264,92 @@ class Game extends Component {
                             Actions[v]()
                         }
                     }}
-                >
-                    <Paper variant="outlined" className={classes.game} autoFocus>
-                        <Grid
-                            container
-                            direction="row"
-                            alignItems="center"
-                            justify="center"
-                        >
-                            <Box border={1}>
-                                <Grid
-                                    container
-                                    item
-                                    className={classes.gameContainer}
-                                    style={{
-                                        width: `${this.props.width}px`,
-                                        height: `${this.props.height}px`
-                                    }}
-                                    alignItems="center"
-                                    justify="space-between"
-                                >
-                                    { started && 
-                                    <>
-                                        <Grid item className={classes.PadLeft} style={{top: `${AiPosition.position}px`, height: `${this.props.padSize}px`}}></Grid>
-                                        <Grid item>
-                                            <Ball/>
-                                        </Grid>
-                                        <Grid item className={classes.PadRight} style={{top: `${PlayerPosition.position}px`, height: `${this.props.padSize}px` }}></Grid>
-                                    </>}
-                                    { (!started && !Lost) && (<>
-                                        <Grid item xs={1}></Grid>
-                                        <Grid item xs={10}>
-                                            <Button startIcon={ <PlayArrowOutlined /> } onClick={Actions.enter} className={classes.startButton} variant="outlined" fullWidth >START</Button> 
-                                        </Grid>
-                                        <Grid item xs={1}></Grid>
-                                    </>)}
-                                    { (!started && Lost) &&
+                >  
+                    <>
+                        <Paper variant="outlined" className={classes.game} autoFocus>
+                            <Grid
+                                container
+                                direction="row"
+                                alignItems="center"
+                                justify="center"
+                            >
+                                <Box border={1}>
+                                    <Grid
+                                        container
+                                        item
+                                        className={classes.gameContainer}
+                                        style={{
+                                            width: `${this.props.width}px`,
+                                            height: `${this.props.height}px`
+                                        }}
+                                        alignItems="center"
+                                        justify="space-between"
+                                    >
+                                        { started && 
                                         <>
+                                            <Grid item className={classes.PadLeft} style={{top: `${AiPosition.position}px`, height: `${this.props.padSize}px`}}></Grid>
+                                            <Grid item>
+                                                <Ball/>
+                                            </Grid>
+                                            <Grid item className={classes.PadRight} style={{top: `${PlayerPosition.position}px`, height: `${this.props.padSize}px` }}></Grid>
+                                        </>}
+                                        { (!started && !Lost) && (<>
                                             <Grid item xs={1}></Grid>
                                             <Grid item xs={10}>
-                                                <Button startIcon={ <RotateLeftOutlined /> } onClick={Actions.Restart} className={classes.resetButton} variant="outlined" fullWidth >RESTART</Button> 
+                                                <Button startIcon={ <PlayArrowOutlined /> } onClick={Actions.enter} variant="outlined" fullWidth >START</Button> 
                                             </Grid>
                                             <Grid item xs={1}></Grid>
-                                        </>
-                                    }
+                                        </>)}
+                                        { (!started && Lost) &&
+                                            <>
+                                                <Grid item xs={1}></Grid>
+                                                <Grid item xs={10}>
+                                                    <Button startIcon={ <RotateLeftOutlined /> } onClick={Actions.Restart} variant="outlined" fullWidth >RESTART</Button> 
+                                                </Grid>
+                                                <Grid item xs={1}></Grid>
+                                            </>
+                                        }
+                                    </Grid>
+                                </Box>
+                            </Grid>
+                        </Paper>
+                        {/* <Paper variant="outlined" className={classes.game} autoFocus>
+                            <Grid
+                                container
+                                direction="row"
+                                alignItems="center"
+                                justify="center"
+                            >
+                                <Grid item xs={12}>
+                                    <h3 style={{"text-align": "center"}}>Controls</h3>
                                 </Grid>
-                            </Box>
-                        </Grid>
-                    </Paper>
+                                <Grid item container md={4} sm={12} justify="center" spacing={1}>
+                                    <Grid item xs={12} style={{"text-align": "center"}}>
+                                        <h1 style={{display: "inline-block"}}>w</h1> To move up left paddle
+                                    </Grid>
+                                    <Grid item xs={12} sm={12} style={{"text-align": "center"}}>
+                                        <h1 style={{display: "inline-block"}}>S</h1>: To move down left paddle
+                                    </Grid>
+                                </Grid>
+                                <Grid item container md={4} sm={12}>
+                                    <Grid item xs={12} style={{"text-align": "center"}}>
+                                        <h1 style={{display: "inline-block"}}>Enter</h1> To start the game
+                                    </Grid>
+                                    <Grid item xs={12} style={{"text-align": "center"}}>
+                                        <h1 style={{display: "inline-block"}}>Esc</h1>To pause the game
+                                    </Grid>
+                                </Grid>
+                                <Grid item container md={4} sm={12}>
+                                    <Grid item xs={12} style={{"text-align": "center"}}>
+                                        <h1 style={{display: "inline-block"}}>Arrow Up</h1> To move up right paddle
+                                    </Grid>
+                                    <Grid item xs={12} style={{"text-align": "center"}}>
+                                        <h1 style={{display: "inline-block"}}>Arrow Down</h1>: To move down right paddle
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Paper> */}
+                    </>
                 </ReactHotkeys>
             </>
         )
