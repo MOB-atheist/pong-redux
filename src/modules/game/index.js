@@ -144,29 +144,57 @@ class Game extends Component {
         }
     }
 
+    SpeedChange = (Entity,Ball) => {
+        // Entity is the object that interacts wih the ball, player one or Not
+        if(Entity.direction === "up"){
+            if(
+                Ball.xSpeed % 2 === 0 // is  Even?
+            ){// Going down, so  i'll add speed
+                Ball.xSpeed -= Ball.xSpeed/2
+            }else{//  Odd, Going up, so  i'll decrease speed
+                Ball.xSpeed += Ball.xSpeed/2
+            }
+        }
+        if(Entity.direction === "down"){
+            if(
+                Ball.xSpeed % 2 === 0 //Se numero é par | Even
+            ){// pallet Going down and ball going up, so  i'll decrease speed
+                Ball.xSpeed -= Ball.xSpeed/2
+            }else{//  Odd, Going up, so  i'll decrease speed
+                Ball.xSpeed += Ball.xSpeed/2
+            }
+        }
+        return Ball
+    }
+
     ProcessBallMovement = () => {
         var { Ball, PlayerPosition, AiPosition } = this.state
         const { padSize, width } = this.props // Tamanho da paleta
 
         // Colisão com paleta do Player ou Bot
         if(
-            (// PLayer direita
-                Ball.x >= PlayerPosition.position // Posição bola for maior que a da paleta
-                && Ball.x <= (PlayerPosition.position + padSize) // Está na linha horizontal junto a paleta ?
-                && Ball.y >= width - Ball.width
-            ) || (// PLayer esquerda
-                Ball.x >= AiPosition.position // Posição bola for maior que a da paleta
-                && Ball.x <= (AiPosition.position + padSize) // Está na linha horizontal junto a paleta ?
-                && Ball.y <= 0 + Ball.width
-            )
+            Ball.x + Ball.height >= PlayerPosition.position // Posição bola for maior que a extremidade superior
+            && Ball.x - Ball.height<= (PlayerPosition.position + padSize) // Posição é menor que a extremidade inferior
+            && Ball.y >= width - Ball.width
         ){
+            Ball = this.SpeedChange(PlayerPosition, Ball)
             Ball.ySpeed = -(Ball.ySpeed)
-            return Ball // Se houver conlisões com player ou ia
+            return Ball // Se houver colisões com player
+        }
+
+        if(
+            Ball.x + Ball.height >= AiPosition.position // Posição bola for maior que a da paleta
+            && Ball.x - Ball.height<= (AiPosition.position + padSize) // Está na linha horizontal junto a paleta ?
+            && Ball.y <= 0 + Ball.width
+        ){
+            Ball = this.SpeedChange(AiPosition, Ball)
+            Ball.ySpeed = -(Ball.ySpeed)
+            return Ball // Se houver colisões com player ou ia
         }
 
         // Se posição y passar de ( width tela - width bola - 10px (padding + width da paleta))
         // Jogardor perdeu o jogo
-        if(Ball.y > width - Ball.width ){
+        if(Ball.y > width - Ball.width || Ball.y <= 0 + Ball.width){
             this.Reset(true)
             return false
         }
