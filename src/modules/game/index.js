@@ -70,8 +70,12 @@ class Game extends Component {
     }
 
     KeyListener = (event) => {
+        if(event.srcElement.nodeName === "INPUT"){
+            return true
+        }
         const Action = this.Actions[event.key]
         if(Action){
+            event.preventDefault()
             Action()
         }
     }
@@ -86,19 +90,19 @@ class Game extends Component {
     Actions = {
         up: ({ direction, x, y }) => {
             if(x === 0){
-                x++;
+                x+= (1) * this.props.SpeedMultiplier;
                 direction="down"
             }else{
-                x--;
+                x-= (1) * this.props.SpeedMultiplier;
             }
             return { direction, x, y }
         },
         down: ({ direction, x, y}) => {
             if(x === this.props.height - this.props.padSize){
-                x--;
+                x-= (1) * this.props.SpeedMultiplier;
                 direction="up"
             }else{
-                x++;
+                x+= (1) * this.props.SpeedMultiplier;
             }
             return { direction, x, y }
         },
@@ -162,8 +166,9 @@ class Game extends Component {
     MoveBall = () => {
         var Ball = this.ProcessBallMovement()
         if(Ball === false) return
-        Ball.x = Ball.x + Ball.xSpeed // Passos dados na vertical
-        Ball.y = Ball.y + Ball.ySpeed // Passos dados na horizontal
+        console.log(( Ball.x + Ball.xSpeed ), this.props.SpeedMultiplier)
+        Ball.x = ( Ball.x + Ball.xSpeed ) * this.props.SpeedMultiplier// Passos dados na vertical
+        Ball.y = ( Ball.y + Ball.ySpeed ) * this.props.SpeedMultiplier// Passos dados na horizontal
         this.setState({ Ball: Ball })
     }
 
@@ -196,20 +201,20 @@ class Game extends Component {
             const BottomScrape = Ball.height - (BottomLimit - HitTop)
             const TopScrape = Ball.height - (TopLimit - HitBottom)
 
-            var Direction = 1
+            var Direction = 0
 
             // This can be refactored to perform better
             if(TopScrape > Ball.height/2){ // Ball touching bellow middle
-                Direction = 1 // Middle of the ball, ball
+                Direction = 0 // Middle of the ball, ball
             }else if(TopScrape > Ball.height){ // Ball touching beyond middle on the paddle
-                Direction = TopScrape/100 + 1
+                Direction = TopScrape
             }else if(BottomScrape > Ball.height/2){ // Ball touching bellow middle
-                Direction = 1
+                Direction = 0
             }else if(BottomScrape > Ball.height){ // Ball touching beyond middle on the paddle
-                Direction = -(BottomScrape)/100 + 1
+                Direction = BottomScrape
             }
 
-            return (Paddle.direction === "down"?-(Direction):Direction)
+            return Direction
         }
         return false;// No collision
     }
@@ -221,11 +226,9 @@ class Game extends Component {
                 RightPaddle,
                 padSize // width minus Paddle spacing and Thickness
             )
-            console.log("COLLISION", PaddleHitPoint)
-            if(PaddleHitPoint){
-                console.log("YWAH")
-                Ball = this.SpeedChange(RightPaddle, Ball)
-                Ball.ySpeed = -(Ball.ySpeed)*PaddleHitPoint
+            if(PaddleHitPoint !== false){
+                Ball = this.SpeedChange(RightPaddle, Ball, PaddleHitPoint)
+                Ball.ySpeed = -(Ball.ySpeed)
                 return Ball // Se houver colisões com player
             }
             return false
@@ -236,9 +239,9 @@ class Game extends Component {
                 LeftPaddle,
                 padSize,
             )
-            if(PaddleHitPoint){
-                Ball = this.SpeedChange(LeftPaddle, Ball)
-                Ball.ySpeed = -(Ball.ySpeed)*PaddleHitPoint
+            if(PaddleHitPoint!== false){
+                Ball = this.SpeedChange(LeftPaddle, Ball, PaddleHitPoint)
+                Ball.ySpeed = -(Ball.ySpeed)
                 return Ball // Se houver colisões com player ou ia
             }
             return false
@@ -256,7 +259,6 @@ class Game extends Component {
         // Right Lost 
         // Poor code for sure
         if(Ball.y > width - Ball.width && !RightSpeedDiff){
-            console.log('DIED HERE')
             this.Reset(true)
             return false
         }
@@ -287,26 +289,27 @@ class Game extends Component {
         // parede serão processadas ate aqui
     }
 
-    SpeedChange = (Entity,Ball) => {
+    SpeedChange = (Entity,Ball, HitPoints) => {
         // Entity is the object that interacts wih the ball, player one or Not
         if(Entity.direction === "up"){
             if(
-                Ball.xSpeed % 2 === 0 // is  Even?
+                Ball.xSpeed <= 0 // is  Positive
             ){// Going down, so  i'll add speed
-                Ball.xSpeed -= (Ball.xSpeed/100)
+                Ball.xSpeed += (Ball.xSpeed)/2
             }else{//  Odd, Going up, so  i'll decrease speed
-                Ball.xSpeed += (Ball.xSpeed/100)
+                Ball.xSpeed -= (Ball.xSpeed)/2
             }
         }
         if(Entity.direction === "down"){
             if(
-                Ball.xSpeed % 2 === 0 //Se numero é par | Even
+                Ball.xSpeed >= 0 //Se numero é par | Even
             ){// pallet Going down and ball going up, so  i'll decrease speed
-                Ball.xSpeed -= (Ball.xSpeed/100)
+                Ball.xSpeed -= (Ball.xSpeed)/2
             }else{//  Odd, Going up, so  i'll decrease speed
-                Ball.xSpeed += (Ball.xSpeed/100)
+                Ball.xSpeed += (Ball.xSpeed)/2
             }
         }
+        Ball.xSpeed += HitPoints
         return Ball
     }
 
@@ -375,7 +378,7 @@ class Game extends Component {
                         </Box>
                     </Grid>
                 </Paper>
-                {/* <Paper variant="outlined" className={classes.game} autoFocus>
+                <Paper variant="outlined" className={classes.game} autoFocus>
                     <Grid
                         container
                         direction="row"
@@ -410,7 +413,7 @@ class Game extends Component {
                             </Grid>
                         </Grid>
                     </Grid>
-                </Paper> */}
+                </Paper>
             </>
         )
     }
