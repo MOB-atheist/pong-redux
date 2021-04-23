@@ -38,7 +38,7 @@ export default function Home() {
                 <h3>Welcome to my mini project, Pong Redux</h3> ill use this project to put my react-redux skills to the test, if you see any bug please report it on <Link href="https://github.com/MOB-atheist/pong-redux/pulls">Issues</Link>
                 <p><b>Attention! this App has no touchscreen interactions yet</b></p>
             </Paper>
-            {/* <Paper variant="outlined" className={classes.paper}>
+            <Paper variant="outlined" className={classes.paper}>
                 <Grid container spacing={3}>
                     <Grid item md={6} sm={12}>
                         <TextField fullWidth variant="outlined" label="Game Height" value={width} onChange={setWidth}/>
@@ -67,7 +67,7 @@ export default function Home() {
                         </Button>
                     </Grid>
                 </Grid>
-            </Paper> */}
+            </Paper>
             <Game height={height} width={width} padSize={padSize} fps={fps} BallHeight={ballHeight} BallWidth={ballWidth} friction={friction}/>
         </>
     )
