@@ -1,5 +1,5 @@
 import { Box, Button, Grid, Paper, Typography, withStyles } from '@material-ui/core'
-import { PlayArrowOutlined, RotateLeftOutlined } from '@material-ui/icons'
+import { CollectionsOutlined, PlayArrowOutlined, RotateLeftOutlined } from '@material-ui/icons'
 import React, { Component } from 'react'
 import ReactHotkeys from 'react-hot-keys'
 
@@ -36,17 +36,20 @@ const useStyles = (theme) => ({
 class Game extends Component {
     constructor(props) {
         super()
-        this.state = {
+        
+        this._Defaults = (props = this.props) => ({
             started: false,
             Lost: false,
             Loop: null,
-            AiPosition: {
+            LeftPaddle: {
                 direction: "up",
-                position: props.height/2
+                x: props.height/2,
+                y: 10
             },
-            PlayerPosition: {
+            RightPaddle: {
                 direction: "up",
-                position: props.height/2
+                x: props.height/2 - 15,
+                y: props.width - 10
             },
             Ball: {
                 height: props.BallHeight,
@@ -56,150 +59,219 @@ class Game extends Component {
                 xSpeed: 1,
                 ySpeed: 1
             }
+        })
+        
+        this.state = this._Defaults(props)
+    }
+
+    componentDidMount() {
+        // Listening to all on the document keyboard inputs, event sent to KeyListener
+        document.addEventListener("keydown", this.KeyListener)
+    }
+
+    KeyListener = (event) => {
+        const Action = this.Actions[event.key]
+        if(Action){
+            Action()
         }
     }
 
     Reset = (Lost = false) => {
         clearInterval(this.state.Loop)
-        console.log(this.state)
-        this.setState({
-            started: false,
-            Lost: Lost,
-            Loop: null,
-            AiPosition: {
-                direction: "up",
-                position: this.props.height/2
-            },
-            PlayerPosition: {
-                direction: "up",
-                position: this.props.height/2
-            },
-            Ball: {
-                height: this.props.BallHeight,
-                width: this.props.BallWidth,
-                x: this.props.height/2,
-                y: this.props.width/2,
-                xSpeed: 1,
-                ySpeed: 1
-            }
-        })
-        console.log(this.state)
-    }
-
-    Update = () => {
-        this.MoveAi()
-        this.MovePlayer()
-        this.MoveBall()
+        var _Default = this._Defaults()
+        _Default.Lost = Lost
+        this.setState(_Default)
     }
 
     Actions = {
-        down: ({ direction, position }) => {
-            if(position === this.props.height - this.props.padSize){
-                position--;
-                direction="up"
-            }else{
-                position++;
-            }
-            return { direction, position }
-        },
-        up: ({ direction, position }) => {
-            if(position === 0){
-                position++;
+        up: ({ direction, x, y }) => {
+            if(x === 0){
+                x++;
                 direction="down"
             }else{
-                position--;
+                x--;
             }
-            return { direction, position }
+            return { direction, x, y }
         },
-        playerDirection: (v) => {
-            var { PlayerPosition } = this.state
-            PlayerPosition.direction = v
-            this.setState({ PlayerPosition: PlayerPosition })
+        down: ({ direction, x, y}) => {
+            if(x === this.props.height - this.props.padSize){
+                x--;
+                direction="up"
+            }else{
+                x++;
+            }
+            return { direction, x, y }
         },
-        AiDirection: (v) => {
-            var { AiPosition } = this.state
-            AiPosition.direction = (v === "w"?"up":"down")
-            this.setState({ AiPosition: AiPosition })
+        ArrowUp: () => { // Change left player direction
+            var { RightPaddle } = this.state
+            RightPaddle.direction = "up"
+            this.setState({ RightPaddle: RightPaddle})
         },
-        escape: () => {
-            // stop game
-            this.setState({
-                started: false
-            })
+        ArrowDown: () => {// Change left player direction
+            var { RightPaddle } = this.state
+            RightPaddle.direction = "down"
+            this.setState({ RightPaddle: RightPaddle})
+        },
+        w: () => { // Change left paddle direction up
+            var { LeftPaddle } = this.state
+            LeftPaddle.direction = "up"
+            this.setState({ LeftPaddle: LeftPaddle})
+        },
+        s: () => { // Change RIght paddle direction down
+            var { LeftPaddle } = this.state
+            LeftPaddle.direction = "down"
+            this.setState({ LeftPaddle: LeftPaddle})
+        },
+        Escape: () => {
             clearInterval(this.state.Loop)
+            this.setState({ started: false })
         },
-        enter: () => {
+        Enter: () => {
             // Start game
             if(!this.state.started){
                 this.setState({
                     started: true,
+                    Lost: false,
                     Loop: setInterval(() => {
                         this.Update()
                     }, 1000/this.props.fps)
                 })
             }
-        }
+        },
+        
     }
 
-    SpeedChange = (Entity,Ball) => {
-        // Entity is the object that interacts wih the ball, player one or Not
-        if(Entity.direction === "up"){
-            if(
-                Ball.xSpeed % 2 === 0 // is  Even?
-            ){// Going down, so  i'll add speed
-                Ball.xSpeed -= Ball.xSpeed/this.props.friction
-            }else{//  Odd, Going up, so  i'll decrease speed
-                Ball.xSpeed += Ball.xSpeed/this.props.friction
+    Update = () => {
+        this.MoveBall()
+        this.MoveLeftPaddle()
+        this.MoveRightPaddle()
+    }
+
+    MoveLeftPaddle = () => {
+        var { LeftPaddle } = this.state
+        LeftPaddle = this.Actions[LeftPaddle.direction](LeftPaddle)
+        this.setState({LeftPaddle: LeftPaddle})
+    }
+
+    MoveRightPaddle = () => {
+        var { RightPaddle } = this.state
+        RightPaddle = this.Actions[RightPaddle.direction](RightPaddle)
+        this.setState({RightPaddle: RightPaddle})
+    }
+
+    MoveBall = () => {
+        var Ball = this.ProcessBallMovement()
+        if(Ball === false) return
+        Ball.x = Ball.x + Ball.xSpeed // Passos dados na vertical
+        Ball.y = Ball.y + Ball.ySpeed // Passos dados na horizontal
+        this.setState({ Ball: Ball })
+    }
+
+    PaddleCollision =(Ball,Paddle, padSize) => {
+        const BottomLimit =  Paddle.x + padSize // bottom limit of the hitbox
+        const TopLimit =  Paddle.x// bottom limit of the hitbox
+        const XBallTop =  Ball.x // top limit of ball hit box
+        const XBallBottom =  Ball.x + Ball.height // top limit of ball hit box
+
+        if(
+            XBallBottom >= TopLimit // Bottom ball pixel is inside top Paddle limit
+            && XBallTop <= BottomLimit // Top ball pixel is inside Bottom Pabble limit
+            /*
+                Think it as 
+                    0 Ball on the first verification
+                     |  Paddle
+                    0 Ball on the Second verification
+            */
+            && (
+               Ball.y + Ball.width/2 >= Paddle.y
+               && Ball.y + Ball.width/2 <= Paddle.y + 10
+            ) // Did the ball touch the paddle?
+           // YPaddlePosition can be 10 for the left one and width - 10 for the right one,
+           // 10 is 5 padding and 5 width of the paddle 
+        ){
+
+            const HitTop =  XBallBottom - TopLimit // Ball hitbox point on the top portion of the paddle
+            const HitBottom =  Ball.x - Ball.height // Ball hitbox point on the bottom portion of the paddle
+
+            const BottomScrape = Ball.height - (BottomLimit - HitTop)
+            const TopScrape = Ball.height - (TopLimit - HitBottom)
+
+            var Direction = 1
+
+            // This can be refactored to perform better
+            if(TopScrape > Ball.height/2){ // Ball touching bellow middle
+                Direction = 1 // Middle of the ball, ball
+            }else if(TopScrape > Ball.height){ // Ball touching beyond middle on the paddle
+                Direction = TopScrape/100 + 1
+            }else if(BottomScrape > Ball.height/2){ // Ball touching bellow middle
+                Direction = 1
+            }else if(BottomScrape > Ball.height){ // Ball touching beyond middle on the paddle
+                Direction = -(BottomScrape)/100 + 1
             }
+
+            return (Paddle.direction === "down"?-(Direction):Direction)
         }
-        if(Entity.direction === "down"){
-            if(
-                Ball.xSpeed % 2 === 0 //Se numero é par | Even
-            ){// pallet Going down and ball going up, so  i'll decrease speed
-                Ball.xSpeed -= Ball.xSpeed/this.props.friction
-            }else{//  Odd, Going up, so  i'll decrease speed
-                Ball.xSpeed += Ball.xSpeed/this.props.friction
+        return false;// No collision
+    }
+
+    collision = { // Ball colision
+        RightPaddleCollision: (Ball, RightPaddle, padSize, width) => {
+            const PaddleHitPoint = this.PaddleCollision(
+                Ball,
+                RightPaddle,
+                padSize // width minus Paddle spacing and Thickness
+            )
+            console.log("COLLISION", PaddleHitPoint)
+            if(PaddleHitPoint){
+                console.log("YWAH")
+                Ball = this.SpeedChange(RightPaddle, Ball)
+                Ball.ySpeed = -(Ball.ySpeed)*PaddleHitPoint
+                return Ball // Se houver colisões com player
             }
-        }
-        return Ball
+            return false
+        },
+        LeftPaddleCollision: (Ball, LeftPaddle, padSize) => {
+            const PaddleHitPoint = this.PaddleCollision(
+                Ball,
+                LeftPaddle,
+                padSize,
+            )
+            if(PaddleHitPoint){
+                Ball = this.SpeedChange(LeftPaddle, Ball)
+                Ball.ySpeed = -(Ball.ySpeed)*PaddleHitPoint
+                return Ball // Se houver colisões com player ou ia
+            }
+            return false
+        },
     }
 
     ProcessBallMovement = () => {
-        var { Ball, PlayerPosition, AiPosition } = this.state
-        const { padSize, width } = this.props // Tamanho da paleta
+        var { Ball, RightPaddle, LeftPaddle } = this.state
+        const { padSize, width } = this.props // Tamanho da paleta, largura tela
 
-        // Colisão com paleta do Player ou Bot
-        if(
-            Ball.x + Ball.height >= PlayerPosition.position // Posição bola for maior que a extremidade superior
-            && Ball.x - Ball.height<= (PlayerPosition.position + padSize) // Posição é menor que a extremidade inferior
-            && Ball.y >= width - Ball.width
-        ){
-            Ball = this.SpeedChange(PlayerPosition, Ball)
-            Ball.ySpeed = -(Ball.ySpeed)
-            return Ball // Se houver colisões com player
-        }
+        const RightSpeedDiff = this.collision.RightPaddleCollision(Ball, RightPaddle, padSize, width)
 
-        if(
-            Ball.x + Ball.height >= AiPosition.position // Posição bola for maior que a da paleta
-            && Ball.x - Ball.height<= (AiPosition.position + padSize) // Está na linha horizontal junto a paleta ?
-            && Ball.y <= 0 + Ball.width
-        ){
-            Ball = this.SpeedChange(AiPosition, Ball)
-            Ball.ySpeed = -(Ball.ySpeed)
-            return Ball // Se houver colisões com player ou ia
-        }
+        const LeftSpeedDiff = this.collision.LeftPaddleCollision(Ball, LeftPaddle, padSize)
 
-        // Se posição y passar de ( width tela - width bola - 10px (padding + width da paleta))
-        // Jogardor perdeu o jogo
-        if(Ball.y > width - Ball.width || Ball.y <= 0 + Ball.width){
+        // Right Lost 
+        // Poor code for sure
+        if(Ball.y > width - Ball.width && !RightSpeedDiff){
+            console.log('DIED HERE')
             this.Reset(true)
             return false
         }
 
-        // Se bola posição < tamanho tela - tamanho da bola && 
-        // Posição > 0
-        // Ou seja se a bola estiver dentro do range da tela retorno é true,
-        // usando ! nos informamos que o proximo movimento é invalido e a velocidade é invertida
+        // Left Lost 
+        // Poor code for sure and copied
+        if(Ball.y < 10 && !LeftSpeedDiff){
+            this.Reset(true)
+            return false
+        }
+
+        /*
+            If Ball posision < Screen width - Ball size
+            #TODO 
+        */
         if(!((Ball.x < this.props.height - Ball.height) && Ball.x > 0)){
             Ball.xSpeed = -(Ball.xSpeed)
         }
@@ -215,12 +287,27 @@ class Game extends Component {
         // parede serão processadas ate aqui
     }
 
-    MoveBall = () => {
-        var Ball = this.ProcessBallMovement()
-        if(Ball === false) return
-        Ball.x = Ball.x + Ball.xSpeed // Passos dados na vertical
-        Ball.y = Ball.y + Ball.ySpeed // Passos dados na horizontal
-        this.setState({ Ball: Ball })
+    SpeedChange = (Entity,Ball) => {
+        // Entity is the object that interacts wih the ball, player one or Not
+        if(Entity.direction === "up"){
+            if(
+                Ball.xSpeed % 2 === 0 // is  Even?
+            ){// Going down, so  i'll add speed
+                Ball.xSpeed -= (Ball.xSpeed/100)
+            }else{//  Odd, Going up, so  i'll decrease speed
+                Ball.xSpeed += (Ball.xSpeed/100)
+            }
+        }
+        if(Entity.direction === "down"){
+            if(
+                Ball.xSpeed % 2 === 0 //Se numero é par | Even
+            ){// pallet Going down and ball going up, so  i'll decrease speed
+                Ball.xSpeed -= (Ball.xSpeed/100)
+            }else{//  Odd, Going up, so  i'll decrease speed
+                Ball.xSpeed += (Ball.xSpeed/100)
+            }
+        }
+        return Ball
     }
 
     Ball = () => {
@@ -234,123 +321,96 @@ class Game extends Component {
         )
     }
 
-    MoveAi = () => {
-        var { AiPosition } = this.state
-        AiPosition = this.Actions[AiPosition.direction](AiPosition)
-        this.setState({AiPosition: AiPosition})
-    }
-
-    MovePlayer = () => {
-        var { PlayerPosition } = this.state
-        PlayerPosition = this.Actions[PlayerPosition.direction](PlayerPosition)
-        this.setState({PlayerPosition: PlayerPosition})
-    }
-
     render() {
         const { classes, padSize } = this.props
-        const { started, AiPosition, Lost } = this.state
-        var { PlayerPosition } = this.state
+        const { started, LeftPaddle, Lost } = this.state
+        var { RightPaddle } = this.state
         const { Actions, Ball } = this
         return (
             <>
-                <ReactHotkeys
-                    keyName="escape, enter, down, up, w, s"
-                    onKeyDown={(v) => {
-                        if(v === "up" || v === "down"){
-                            Actions["playerDirection"](v)
-                        }else if( v === "w" || v === "s"){
-                            Actions["AiDirection"](v)
-                        }else{
-                            Actions[v]()
-                        }
-                    }}
-                >  
-                    <>
-                        <Paper variant="outlined" className={classes.game} autoFocus>
+                <Paper variant="outlined" className={classes.game} autoFocus>
+                    <Grid
+                        container
+                        direction="row"
+                        alignItems="center"
+                        justify="center"
+                    >
+                        <Box border={1}>
                             <Grid
                                 container
-                                direction="row"
+                                item
+                                className={classes.gameContainer}
+                                style={{
+                                    width: `${this.props.width}px`,
+                                    height: `${this.props.height}px`
+                                }}
                                 alignItems="center"
-                                justify="center"
+                                justify="space-between"
                             >
-                                <Box border={1}>
-                                    <Grid
-                                        container
-                                        item
-                                        className={classes.gameContainer}
-                                        style={{
-                                            width: `${this.props.width}px`,
-                                            height: `${this.props.height}px`
-                                        }}
-                                        alignItems="center"
-                                        justify="space-between"
-                                    >
-                                        { started && 
-                                        <>
-                                            <Grid item className={classes.PadLeft} style={{top: `${AiPosition.position}px`, height: `${this.props.padSize}px`}}></Grid>
-                                            <Grid item>
-                                                <Ball/>
-                                            </Grid>
-                                            <Grid item className={classes.PadRight} style={{top: `${PlayerPosition.position}px`, height: `${this.props.padSize}px` }}></Grid>
-                                        </>}
-                                        { (!started && !Lost) && (<>
-                                            <Grid item xs={1}></Grid>
-                                            <Grid item xs={10}>
-                                                <Button startIcon={ <PlayArrowOutlined /> } onClick={Actions.enter} variant="outlined" fullWidth >START</Button> 
-                                            </Grid>
-                                            <Grid item xs={1}></Grid>
-                                        </>)}
-                                        { (!started && Lost) &&
-                                            <>
-                                                <Grid item xs={1}></Grid>
-                                                <Grid item xs={10}>
-                                                    <Button startIcon={ <RotateLeftOutlined /> } onClick={Actions.Restart} variant="outlined" fullWidth >RESTART</Button> 
-                                                </Grid>
-                                                <Grid item xs={1}></Grid>
-                                            </>
-                                        }
+                                { started && 
+                                <>
+                                    <Grid item className={classes.PadLeft} style={{top: `${LeftPaddle.x}px`, height: `${this.props.padSize}px`}}></Grid>
+                                    <Grid item>
+                                        <Ball/>
                                     </Grid>
-                                </Box>
+                                    <Grid item className={classes.PadRight} style={{top: `${RightPaddle.x}px`, height: `${this.props.padSize}px` }}></Grid>
+                                </>}
+                                { (!started && !Lost) && (<>
+                                    <Grid item xs={1}></Grid>
+                                    <Grid item xs={10}>
+                                        <Button startIcon={ <PlayArrowOutlined /> } onClick={Actions.Enter} variant="outlined" fullWidth >START</Button> 
+                                    </Grid>
+                                    <Grid item xs={1}></Grid>
+                                </>)}
+                                { (!started && Lost) &&
+                                    <>
+                                        <Grid item xs={1}></Grid>
+                                        <Grid item xs={10}>
+                                            <Button startIcon={ <RotateLeftOutlined /> } onClick={Actions.Enter} variant="outlined" fullWidth >RESTART</Button> 
+                                        </Grid>
+                                        <Grid item xs={1}></Grid>
+                                    </>
+                                }
                             </Grid>
-                        </Paper>
-                        {/* <Paper variant="outlined" className={classes.game} autoFocus>
-                            <Grid
-                                container
-                                direction="row"
-                                alignItems="center"
-                                justify="center"
-                            >
-                                <Grid item xs={12}>
-                                    <h3 style={{"text-align": "center"}}>Controls</h3>
-                                </Grid>
-                                <Grid item container md={4} sm={12} justify="center" spacing={1}>
-                                    <Grid item xs={12} style={{"text-align": "center"}}>
-                                        <h1 style={{display: "inline-block"}}>w</h1> To move up left paddle
-                                    </Grid>
-                                    <Grid item xs={12} sm={12} style={{"text-align": "center"}}>
-                                        <h1 style={{display: "inline-block"}}>S</h1>: To move down left paddle
-                                    </Grid>
-                                </Grid>
-                                <Grid item container md={4} sm={12}>
-                                    <Grid item xs={12} style={{"text-align": "center"}}>
-                                        <h1 style={{display: "inline-block"}}>Enter</h1> To start the game
-                                    </Grid>
-                                    <Grid item xs={12} style={{"text-align": "center"}}>
-                                        <h1 style={{display: "inline-block"}}>Esc</h1>To pause the game
-                                    </Grid>
-                                </Grid>
-                                <Grid item container md={4} sm={12}>
-                                    <Grid item xs={12} style={{"text-align": "center"}}>
-                                        <h1 style={{display: "inline-block"}}>Arrow Up</h1> To move up right paddle
-                                    </Grid>
-                                    <Grid item xs={12} style={{"text-align": "center"}}>
-                                        <h1 style={{display: "inline-block"}}>Arrow Down</h1>: To move down right paddle
-                                    </Grid>
-                                </Grid>
+                        </Box>
+                    </Grid>
+                </Paper>
+                {/* <Paper variant="outlined" className={classes.game} autoFocus>
+                    <Grid
+                        container
+                        direction="row"
+                        alignItems="center"
+                        justify="center"
+                    >
+                        <Grid item xs={12}>
+                            <h3 style={{"text-align": "center"}}>Controls</h3>
+                        </Grid>
+                        <Grid item container md={4} sm={12} justify="center" spacing={1}>
+                            <Grid item xs={12} style={{"text-align": "center"}}>
+                                <h1 style={{display: "inline-block"}}>w</h1> To move up left paddle
                             </Grid>
-                        </Paper> */}
-                    </>
-                </ReactHotkeys>
+                            <Grid item xs={12} sm={12} style={{"text-align": "center"}}>
+                                <h1 style={{display: "inline-block"}}>S</h1>: To move down left paddle
+                            </Grid>
+                        </Grid>
+                        <Grid item container md={4} sm={12}>
+                            <Grid item xs={12} style={{"text-align": "center"}}>
+                                <h1 style={{display: "inline-block"}}>Enter</h1> To start the game
+                            </Grid>
+                            <Grid item xs={12} style={{"text-align": "center"}}>
+                                <h1 style={{display: "inline-block"}}>Esc</h1>To pause the game
+                            </Grid>
+                        </Grid>
+                        <Grid item container md={4} sm={12}>
+                            <Grid item xs={12} style={{"text-align": "center"}}>
+                                <h1 style={{display: "inline-block"}}>Arrow Up</h1> To move up right paddle
+                            </Grid>
+                            <Grid item xs={12} style={{"text-align": "center"}}>
+                                <h1 style={{display: "inline-block"}}>Arrow Down</h1>: To move down right paddle
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Paper> */}
             </>
         )
     }

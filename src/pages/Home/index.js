@@ -19,7 +19,7 @@ export default function Home() {
     const [ fps, setFps ] = useState(60)
     const [ ballHeight, setBallHeight ] = useState(15)
     const [ ballWidth, setBallWidth ] = useState(15)
-    const [ friction, setfriction ] = useState(0.5)
+    const [ friction, setfriction ] = useState(2)
     const classes = useStyles()
     
     console.log(
