@@ -16,13 +16,12 @@ class Home extends Component {
     constructor(props){
         super()
         this._defaults ={
-            height: 256,
-            width: 512,
-            padSize: 30,
+            height: 512,
+            width: 1024,
+            padSize: 200,
             fps: 60,
-            ballHeight: 15,
-            ballWidth: 15,
-            SpeedMultiplier: 1
+            ballSize: 30,
+            SpeedMultiplier: 2
         }
         this.state = {
             Inputs:{
@@ -30,25 +29,25 @@ class Home extends Component {
                 width: this._defaults.width,
                 padSize: this._defaults.padSize,
                 fps: this._defaults.fps,
-                ballHeight: this._defaults.ballHeight,
-                ballWidth: this._defaults.ballWidth,
+                ballSize: this._defaults.ballSize,
                 SpeedMultiplier: this._defaults.SpeedMultiplier,
+                updated: false
             },
             Props: {
                 height: this._defaults.height,
                 width: this._defaults.width,
                 padSize: this._defaults.padSize,
                 fps: this._defaults.fps,
-                ballHeight: this._defaults.ballHeight,
-                ballWidth: this._defaults.ballWidth,
+                ballSize: this._defaults.ballSize,
                 SpeedMultiplier: this._defaults.SpeedMultiplier,
+                updated: false
             }
         }
     }
 
     HandleButton = () => {
         this.setState({
-            Props: this.state.Inputs
+            Props: { ...this.state.Inputs, updated: true }
         })
     }
 
@@ -90,11 +89,8 @@ class Home extends Component {
                         <Grid item md={4} sm={12}>
                             <TextField id="SpeedMultiplier" fullWidth variant="outlined" label="Speed Multiplier" value={Inputs.SpeedMultiplier} onChange={HandleChange}/>
                         </Grid>
-                        <Grid item md={6} sm={12}>
-                            <TextField id="ballHeight" fullWidth variant="outlined" label="Ball Height" value={Inputs.ballHeight} onChange={HandleChange}/>
-                        </Grid>
-                        <Grid item md={6} sm={12}>
-                            <TextField id="ballWidth" fullWidth variant="outlined" label="Ball Width" value={Inputs.ballWidth} onChange={HandleChange}/>
+                        <Grid item md={12} sm={12}>
+                            <TextField id="ballSize" fullWidth variant="outlined" label="Ball Size" value={Inputs.ballSize} onChange={HandleChange}/>
                         </Grid>
                         <Grid item md={12} alignItems="center">
                             <Button fullWidth variant="outlined" onClick={this.HandleButton}>
@@ -108,9 +104,9 @@ class Home extends Component {
                     width={Props.width}
                     padSize={Props.padSize}
                     fps={Props.fps}
-                    BallHeight={Props.ballHeight}
-                    BallWidth={Props.ballWidth}
+                    BallSize={Props.ballSize}
                     SpeedMultiplier={Props.SpeedMultiplier}
+                    updated={Props.updated}
                 />
             </>
         )
