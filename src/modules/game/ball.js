@@ -28,10 +28,10 @@ export class Methods {
         var Lost = false
         Paddles.map((Pad) => {
             if(
-                Ball.y < Pad.y + Pad.width
-                || Ball.y > Pad.y
+                (Pad.y < Width/2 - Pad.width && Ball.ySpeed < 0 && Ball.y < Pad.y)// Pad Left
+                ||(Pad.y > Width/2 && Ball.ySpeed > 0 && Ball.y + Ball.size > Pad.y + Pad.width)  // Right
             ){
-                Lost = Ball.alias // General state as string and alis of loser, kinda poor code but will do for now
+                Lost = Pad.alias // General state as string and alis of loser, kinda poor code but will do for now
                 return Pad
             }
         })

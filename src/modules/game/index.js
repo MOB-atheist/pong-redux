@@ -34,9 +34,8 @@ class Game extends Component {
         super()
         
         this._Defaults = (props = this.props) => ({
-            started: false,
-            Lost: false,
             ActiveKeys: [],
+            Loop: null,
             Ball1: {
                 x: props.height/2 - props.BallSize/2,
                 y: props.width/2 - props.BallSize/2,
@@ -51,7 +50,7 @@ class Game extends Component {
                 height: props.padSize,
                 actions: ["w", "s"],
                 Lost: false,
-                alias: "Esquerdo"
+                alias: "LEFT"
             },
             RightPaddle: {
                 x:props.height/2 - props.padSize/2,
@@ -60,10 +59,12 @@ class Game extends Component {
                 height: props.padSize,
                 actions: ["ArrowUp", "ArrowDown"],
                 Lost: false,
-                alias: "Direito"
+                alias: "RIGHT"
             },
             System: {
-                actions:["Escape", "Enter"]
+                actions:["Escape", "Enter"],
+                started: false,
+                Lost: false,
             }
         })
         
@@ -118,7 +119,6 @@ class Game extends Component {
     Reset = (Lost = false, props = this.props) => {
         clearInterval(this.state.Loop) // Stop loop
         var _Default = this._Defaults(props)
-        console.log(_Default)
         _Default.Lost = Lost // Reset lost status
         this.setState(_Default)
     }
@@ -136,16 +136,20 @@ class Game extends Component {
         s: (Paddle) => { // Move left paddle down
             return this.PaddleMethods.MoveDown(Paddle, this.props.height)
         },
-        Escape: () => {
+        Escape: (Entity) => {
             clearInterval(this.state.Loop)
-            this.setState({ started: false })
+            Entity.started = false
+            return Entity
         },
         Enter: () => {
             // Start game
-            if(!this.state.started){
+            if(!this.state.System.started){
                 this.setState({
-                    started: true,
-                    Lost: false,
+                    System: {
+                        ...this.state.System,
+                        started: true,
+                        Lost: false,
+                    },
                     Loop: setInterval(() => {
                         this.Update()
                     }, 1000/this.props.fps)
@@ -154,15 +158,15 @@ class Game extends Component {
         },
     }
 
-    ExecuteKeys = (Paddles) => { // Responsible for executing actions
+    ExecuteKeys = (Entities) => { // Responsible for executing actions
         const Keys = this.state.ActiveKeys
-        Paddles.map((pad) => {
-            pad.actions.map((action) => {
-                if(Keys.indexOf(action) >= 0) pad = this.Actions[action](pad)
+        Entities.map((Ent) => {
+            Ent.actions.map((action) => {
+                if(Keys.indexOf(action) >= 0) Ent = this.Actions[action](Ent)
             })
-            return pad
+            return Ent
         })
-        return Paddles
+        return Entities
     }
 
     Update = () => {
@@ -178,7 +182,7 @@ class Game extends Component {
             [ this.state.RightPaddle, this.state.LeftPaddle ]
         )
 
-        const [ left, right, Lost ] = 
+        const [ left, right, System, Lost ] = 
         this.BallMethods.Lost(
             this.state.Ball1,
             this.props.width,
@@ -188,18 +192,20 @@ class Game extends Component {
                 this.state.System
             ])
         )
-
+        
+        const _started = (Lost !== false? false: System.started)
+        
         this.setState({
             LeftPaddle: left,
             RightPaddle: right,
             Ball1: Ball1,
-            Lost: Lost
+            System: { ...System, Lost: Lost, started: _started }
         })
     }
 
     render() {
         const { classes } = this.props
-        const { started, LeftPaddle, RightPaddle, Lost } = this.state
+        const { System, LeftPaddle, RightPaddle } = this.state
         const { Actions, Loser } = this
         return (
             <>
@@ -222,7 +228,7 @@ class Game extends Component {
                                 alignItems="center"
                                 justify="space-between"
                             >
-                                { started && 
+                                { System.started && 
                                 <>
                                     <Grid item>
                                         <Paddle
@@ -252,11 +258,11 @@ class Game extends Component {
                                         />
                                     </Grid>
                                 </>}
-                                { (!started && !Lost) && (<>
+                                { (!System.started && System.Lost === false) && (<>
                                     <StartMenu Actions={Actions} />
                                 </>)}
-                                { (!started && Lost) &&
-                                    <RestartMenu Actions={Actions} Loser={Lost}/>
+                                { (!System.started && System.Lost !== false) &&
+                                    <RestartMenu Actions={Actions} Loser={System.Lost}/>
                                 }
                             </Grid>
                         </Box>

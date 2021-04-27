@@ -16,11 +16,11 @@ class Home extends Component {
     constructor(props){
         super()
         this._defaults ={
-            height: 512,
-            width: 1024,
-            padSize: 200,
+            height: 256,
+            width: 512,
+            padSize: 30,
             fps: 60,
-            ballSize: 30,
+            ballSize: 15,
             SpeedMultiplier: 2
         }
         this.state = {
