@@ -8,14 +8,16 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+  
     name: Github Pages Build 👾
+    runs-on: ubuntu-latest
     steps:
-
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2.3.1
       - uses: actions/checkout@v2
       
       - name: Setup node
-        uses: actions/setup-node@v2
+      - uses: actions/setup-node@v2
         with:
           node-version: 14
           cache: 'npm'
