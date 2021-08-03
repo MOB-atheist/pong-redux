@@ -1,0 +1,33 @@
+name: GH-PAGE
+
+on:
+    push:
+      branches: [ main ]
+    pull_request:
+      branches: [ main ]
+
+jobs:
+    build:
+
+        runs-on: ubuntu-latest
+
+        steps:
+        
+            - uses: actions/checkout@v2
+            
+            - name: Node.js 16.x 👾
+              uses: actions/setup-node@v2
+              with:
+                  node-version: 16.x
+                  cache: 'npm'
+            - name: Installing packages 📦
+            - run: npm install
+            
+            - name: Run build 🔧
+            - run: npm run build 
+    
+            - name: Deploy 🚀
+            - uses: JamesIves/github-pages-deploy-action@4.1.1
+              with:
+                  branch: gh-pages
+                  folder: build
