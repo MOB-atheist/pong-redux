@@ -1,12 +1,12 @@
 <h1 align="center">Welcome to pong-redux 👋</h1>
 <p>
-  <a href="https://github.com/MOB-atheist/pong-redux/actions/workflows/node.js.yml" target="blank">
-    <img alt="gh-page" src="https://github.com/MOB-atheist/pong-redux/actions/workflows/node.js.yml/badge.svg" />
+  <a href="https://github.com/MOB-atheist/pong-redux/blob/main/.github/workflows/gh-pages.yml" target="blank">
+    <img alt="gh-page build" src="https://img.shields.io/github/workflow/status/MOB-atheist/pong-redux/Git%20Hub%20Pages%20Deploy/main?label=Github%20Pages&style=flat-square" />
   </a>
-  <img alt="Version" src="https://img.shields.io/badge/version-0.1.0-blue.svg?cacheSeconds=2592000" />
-  <img src="https://img.shields.io/badge/yarn-%3E%3D1.22.10-blue.svg" />
-  <img src="https://img.shields.io/badge/npm-%3E%3D6.14.4-blue.svg" />
-  <img src="https://img.shields.io/badge/node-%3E%3D10.19.0-blue.svg" />
+  <img alt="Version" src="https://img.shields.io/static/v1?label=version&message=0.1.0&style=flat-square" />
+  <img src="https://img.shields.io/static/v1?logo=yarn&label=&message=yarn%20^1.22.10&style=flat-square" />
+  <img src="https://img.shields.io/static/v1?logo=npm&label=&message=npm%20^6.14.4&style=flat-square" />
+  <img src="https://img.shields.io/static/v1?logo=node&label=&message=node%20^10.19.0&style=flat-square" />
 </p>
 
 > Pong game made using react with redux to save game state, for learning purposes
