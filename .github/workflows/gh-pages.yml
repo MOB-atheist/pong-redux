@@ -12,10 +12,6 @@ jobs:
       CI: false
       
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: front
         
     steps:
       - name: Checkout 🛎️
@@ -36,4 +32,4 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@4.1.1
         with:
           branch: gh-pages
-          folder: front/build
+          folder: build
