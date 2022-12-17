@@ -11,7 +11,7 @@
 
 > Pong game made using react with redux to save game state, for learning purposes
 
-### ✨ [Demo](https://pong-redux.coderahead.me/)
+### ✨ [Demo](https://pong-redux.coderahead.tech/)
 
 ## Prerequisites
 
