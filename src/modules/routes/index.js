@@ -9,11 +9,8 @@ export default function Routes(props) {
     return (
         <>
             <Switch>
-                <Route exact path="/#/">
-                    <Home />
-                </Route>
                 <Route path="*">
-                    <NotFound />
+                    <Home />
                 </Route>
             </Switch>
         </>
