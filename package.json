@@ -4,7 +4,7 @@
     "private": false,
     "description": "Pong game made using react with redux to save game state, for learning purposes",
     "author": "MOB-atheist",
-    "homepage": "https://pong-redux.coderahead.me/",
+    "homepage": ".",
     "repository": {
         "type": "git",
         "url": "git@github.com:MOB-atheist/pong-redux.git"
