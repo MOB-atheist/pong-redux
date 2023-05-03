@@ -9,7 +9,7 @@
   <img src="https://img.shields.io/static/v1?logo=node.js&label=node&message=^10.19.0&style=flat-square" />
 </p>
 
-> Pong game made using react with redux to save game state, for learning purposes
+> Pong game made using react with redux to save game state, for learning purposes.
 
 ### ✨ [Demo](https://pong-redux.coderahead.tech/)
 
