@@ -9,7 +9,7 @@ export default function Routes(props) {
     return (
         <>
             <Switch>
-                <Route exact path="/">
+                <Route exact path="/#/">
                     <Home />
                 </Route>
                 <Route path="*">
