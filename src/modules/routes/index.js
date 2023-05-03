@@ -12,7 +12,7 @@ export default function Routes(props) {
                 <Route exact path="/">
                     <Home />
                 </Route>
-                <Route path="/">
+                <Route path="*">
                     <NotFound />
                 </Route>
             </Switch>
